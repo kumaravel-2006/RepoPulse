@@ -1,12 +1,12 @@
 package com.repopulse;
 
+import com.repopulse.config.GitHubOAuthConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
-@SpringBootApplication(excludeName = {
-    "org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration",
-    "org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration"
-})
+@EnableConfigurationProperties(GitHubOAuthConfig.class)
+@SpringBootApplication
 public class RepoPulseApplication {
 
     public static void main(String[] args) {

@@ -2,6 +2,20 @@ spring:
   application:
     name: repopulse
 
+  datasource:
+    url: jdbc:postgresql://localhost:5432/repopulse
+    username: repopulse
+    password: repopulse_dev
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: Asia/Kolkata
+
 server:
   port: 8080
 
@@ -9,3 +23,10 @@ logging:
   level:
     root: INFO
     com.repopulse: DEBUG
+
+
+github:
+  oauth:
+    client-id: ${GITHUB_CLIENT_ID}
+    client-secret: ${GITHUB_CLIENT_SECRET}
+    redirect-uri: http://localhost:8080/api/auth/github/callback

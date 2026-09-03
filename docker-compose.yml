@@ -1,0 +1,21 @@
+services:
+
+  postgres:
+    image: postgres:17
+    container_name: repopulse-postgres
+
+    environment:
+      POSTGRES_DB: repopulse
+      POSTGRES_USER: repopulse
+      POSTGRES_PASSWORD: repopulse_dev
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
