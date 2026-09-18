@@ -1,0 +1,33 @@
+ALTER TABLE analyses
+    ADD COLUMN risk_level VARCHAR(20),
+
+    ADD COLUMN total_files INTEGER NOT NULL DEFAULT 0,
+    ADD COLUMN analyzed_files INTEGER NOT NULL DEFAULT 0,
+    ADD COLUMN failed_files INTEGER NOT NULL DEFAULT 0,
+    ADD COLUMN total_lines_of_code INTEGER NOT NULL DEFAULT 0,
+
+    ADD COLUMN total_classes INTEGER NOT NULL DEFAULT 0,
+    ADD COLUMN total_methods INTEGER NOT NULL DEFAULT 0,
+
+    ADD COLUMN average_method_complexity DOUBLE PRECISION NOT NULL DEFAULT 0,
+    ADD COLUMN max_method_complexity INTEGER NOT NULL DEFAULT 0,
+    ADD COLUMN complex_methods INTEGER NOT NULL DEFAULT 0,
+
+    ADD COLUMN total_class_methods INTEGER NOT NULL DEFAULT 0,
+    ADD COLUMN total_class_fields INTEGER NOT NULL DEFAULT 0,
+    ADD COLUMN max_class_loc INTEGER NOT NULL DEFAULT 0,
+
+    ADD COLUMN total_dependencies INTEGER NOT NULL DEFAULT 0,
+    ADD COLUMN average_class_dependencies DOUBLE PRECISION NOT NULL DEFAULT 0,
+    ADD COLUMN max_class_dependencies INTEGER NOT NULL DEFAULT 0,
+    ADD COLUMN highly_coupled_classes INTEGER NOT NULL DEFAULT 0,
+
+    ADD COLUMN total_shared_field_pairs INTEGER NOT NULL DEFAULT 0,
+    ADD COLUMN average_class_cohesion DOUBLE PRECISION NOT NULL DEFAULT 0,
+    ADD COLUMN low_cohesion_classes INTEGER NOT NULL DEFAULT 0,
+
+    ADD COLUMN average_class_loc DOUBLE PRECISION NOT NULL DEFAULT 0,
+    ADD COLUMN average_method_loc DOUBLE PRECISION NOT NULL DEFAULT 0,
+    ADD COLUMN complex_method_percentage DOUBLE PRECISION NOT NULL DEFAULT 0,
+    ADD COLUMN highly_coupled_class_percentage DOUBLE PRECISION NOT NULL DEFAULT 0,
+    ADD COLUMN low_cohesion_class_percentage DOUBLE PRECISION NOT NULL DEFAULT 0;
