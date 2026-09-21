@@ -17,6 +17,8 @@ public class JavaRepositoryAnalysisService {
     private final PackageDependencyGraphService packageDependencyGraphService;
     private final CircularDependencyService circularDependencyService;
     private final ArchitectureViolationService architectureViolationService;
+    private final GitHistoryService gitHistoryService;
+
 
     public JavaRepositoryAnalysisService(
             JavaAnalysisService javaAnalysisService,
@@ -24,7 +26,8 @@ public class JavaRepositoryAnalysisService {
             DependencyGraphService dependencyGraphService,
             PackageDependencyGraphService packageDependencyGraphService,
             CircularDependencyService circularDependencyService,
-            ArchitectureViolationService architectureViolationService) {
+            ArchitectureViolationService architectureViolationService,
+            GitHistoryService gitHistoryService) {
 
         this.javaAnalysisService = javaAnalysisService;
         this.riskScoreService = riskScoreService;
@@ -32,6 +35,7 @@ public class JavaRepositoryAnalysisService {
         this.packageDependencyGraphService = packageDependencyGraphService;
         this.circularDependencyService = circularDependencyService;
         this.architectureViolationService = architectureViolationService;
+        this.gitHistoryService = gitHistoryService;
     }
 
     public JavaRepositoryAnalysis analyzeRepository(
@@ -236,6 +240,37 @@ public class JavaRepositoryAnalysisService {
         System.out.println("========== ARCHITECTURE VIOLATIONS ==========");
         System.out.println(architectureViolations);
         System.out.println("========== END ARCHITECTURE VIOLATIONS ==========");
+
+        GitCommitAnalysis gitCommitAnalysis =
+                gitHistoryService.analyzeCommitHistory(repositoryPath);
+
+        System.out.println("========== GIT COMMIT ANALYSIS ==========");
+        System.out.println(gitCommitAnalysis);
+        System.out.println("========== END GIT COMMIT ANALYSIS ==========");
+
+        List<FileChurn> fileChurn =
+                gitHistoryService.analyzeFileChurn(repositoryPath);
+
+        System.out.println("========== FILE CHURN ==========");
+        System.out.println(fileChurn);
+        System.out.println("========== END FILE CHURN ==========");
+
+        List<ContributorAnalysis> contributors =
+                gitHistoryService.analyzeContributors(repositoryPath);
+
+        System.out.println("========== CONTRIBUTORS ==========");
+        System.out.println(contributors);
+        System.out.println("========== END CONTRIBUTORS ==========");
+
+        List<HotspotAnalysis> hotspots =
+                gitHistoryService.analyzeHotspots(
+                        fileChurn,
+                        fileAnalyses
+                );
+
+        System.out.println("========== HOTSPOTS ==========");
+        System.out.println(hotspots);
+        System.out.println("========== END HOTSPOTS ==========");
 
         // --------------------------------------------------
         // COUPLING METRICS

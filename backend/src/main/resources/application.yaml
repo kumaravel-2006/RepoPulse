@@ -3,7 +3,7 @@ spring:
     name: repopulse
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/repopulse
+    url: jdbc:postgresql://127.0.0.1:5432/repopulse
     username: repopulse
     password: repopulse_dev
 
