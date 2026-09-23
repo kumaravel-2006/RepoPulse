@@ -166,6 +166,46 @@ public class AnalysisPersistenceService {
             analysis.setRiskLevel(
                     riskScore.level()
             );
+
+            analysis.setRiskExplanation(
+                    riskScore.explanation()
+            );
+
+            analysis.setComplexityRisk(
+                    riskScore.complexityRisk()
+            );
+
+            analysis.setCouplingRisk(
+                    riskScore.couplingRisk()
+            );
+
+            analysis.setCohesionRisk(
+                    riskScore.cohesionRisk()
+            );
+
+            analysis.setSizeRisk(
+                    riskScore.sizeRisk()
+            );
+
+            analysis.setCodeSmellRisk(
+                    riskScore.codeSmellRisk()
+            );
+
+            analysis.setDependencyRisk(
+                    riskScore.dependencyRisk()
+            );
+
+            analysis.setArchitectureRisk(
+                    riskScore.architectureRisk()
+            );
+
+            analysis.setChurnRisk(
+                    riskScore.churnRisk()
+            );
+
+            analysis.setHotspotRisk(
+                    riskScore.hotspotRisk()
+            );
         }
     }
 }

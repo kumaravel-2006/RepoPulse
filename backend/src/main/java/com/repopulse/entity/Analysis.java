@@ -33,6 +33,36 @@ public class Analysis {
     @Column(name = "risk_level")
     private RiskLevel riskLevel;
 
+    @Column(name = "risk_explanation")
+    private String riskExplanation;
+
+    @Column(name = "complexity_risk")
+    private double complexityRisk;
+
+    @Column(name = "coupling_risk")
+    private double couplingRisk;
+
+    @Column(name = "cohesion_risk")
+    private double cohesionRisk;
+
+    @Column(name = "size_risk")
+    private double sizeRisk;
+
+    @Column(name = "code_smell_risk")
+    private double codeSmellRisk;
+
+    @Column(name = "dependency_risk")
+    private double dependencyRisk;
+
+    @Column(name = "architecture_risk")
+    private double architectureRisk;
+
+    @Column(name = "churn_risk")
+    private double churnRisk;
+
+    @Column(name = "hotspot_risk")
+    private double hotspotRisk;
+
     @Column(name = "total_files", nullable = false)
     private int totalFiles;
 
@@ -161,6 +191,86 @@ public class Analysis {
 
     public void setRiskLevel(RiskLevel riskLevel) {
         this.riskLevel = riskLevel;
+    }
+
+    public String getRiskExplanation() {
+        return riskExplanation;
+    }
+
+    public void setRiskExplanation(String riskExplanation) {
+        this.riskExplanation = riskExplanation;
+    }
+
+    public double getComplexityRisk() {
+        return complexityRisk;
+    }
+
+    public void setComplexityRisk(double complexityRisk) {
+        this.complexityRisk = complexityRisk;
+    }
+
+    public double getCouplingRisk() {
+        return couplingRisk;
+    }
+
+    public void setCouplingRisk(double couplingRisk) {
+        this.couplingRisk = couplingRisk;
+    }
+
+    public double getCohesionRisk() {
+        return cohesionRisk;
+    }
+
+    public void setCohesionRisk(double cohesionRisk) {
+        this.cohesionRisk = cohesionRisk;
+    }
+
+    public double getSizeRisk() {
+        return sizeRisk;
+    }
+
+    public void setSizeRisk(double sizeRisk) {
+        this.sizeRisk = sizeRisk;
+    }
+
+    public double getCodeSmellRisk() {
+        return codeSmellRisk;
+    }
+
+    public void setCodeSmellRisk(double codeSmellRisk) {
+        this.codeSmellRisk = codeSmellRisk;
+    }
+
+    public double getDependencyRisk() {
+        return dependencyRisk;
+    }
+
+    public void setDependencyRisk(double dependencyRisk) {
+        this.dependencyRisk = dependencyRisk;
+    }
+
+    public double getArchitectureRisk() {
+        return architectureRisk;
+    }
+
+    public void setArchitectureRisk(double architectureRisk) {
+        this.architectureRisk = architectureRisk;
+    }
+
+    public double getChurnRisk() {
+        return churnRisk;
+    }
+
+    public void setChurnRisk(double churnRisk) {
+        this.churnRisk = churnRisk;
+    }
+
+    public double getHotspotRisk() {
+        return hotspotRisk;
+    }
+
+    public void setHotspotRisk(double hotspotRisk) {
+        this.hotspotRisk = hotspotRisk;
     }
 
     public int getTotalFiles() {

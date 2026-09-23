@@ -1,8 +1,8 @@
 package com.repopulse.service;
 
+import com.repopulse.analysis.git.FileOwnership;
 import com.repopulse.dto.*;
 import org.springframework.stereotype.Service;
-import com.repopulse.service.CircularDependencyService;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -18,7 +18,6 @@ public class JavaRepositoryAnalysisService {
     private final CircularDependencyService circularDependencyService;
     private final ArchitectureViolationService architectureViolationService;
     private final GitHistoryService gitHistoryService;
-
 
     public JavaRepositoryAnalysisService(
             JavaAnalysisService javaAnalysisService,
@@ -50,6 +49,7 @@ public class JavaRepositoryAnalysisService {
                 javaAnalysisService
                         .findJavaFiles(repositoryPath);
 
+
         // --------------------------------------------------
         // BUILD GLOBAL REPOSITORY CLASS SET
         // --------------------------------------------------
@@ -57,6 +57,7 @@ public class JavaRepositoryAnalysisService {
         Set<String> repositoryClasses =
                 javaAnalysisService
                         .findRepositoryClasses(javaFiles);
+
 
         // --------------------------------------------------
         // ANALYZE ALL JAVA FILES
@@ -90,6 +91,7 @@ public class JavaRepositoryAnalysisService {
                         })
                         .toList();
 
+
         // --------------------------------------------------
         // CODE SMELLS
         // --------------------------------------------------
@@ -99,6 +101,7 @@ public class JavaRepositoryAnalysisService {
                         .flatMap(file ->
                                 file.codeSmells().stream())
                         .toList();
+
 
         // --------------------------------------------------
         // FILE METRICS
@@ -122,6 +125,7 @@ public class JavaRepositoryAnalysisService {
                                 JavaFileAnalysis::loc)
                         .sum();
 
+
         // --------------------------------------------------
         // CLASS / METHOD METRICS
         // --------------------------------------------------
@@ -141,8 +145,7 @@ public class JavaRepositoryAnalysisService {
         int totalClassMethods =
                 fileAnalyses.stream()
                         .flatMap(file ->
-                                file.classMetrics()
-                                        .stream())
+                                file.classMetrics().stream())
                         .mapToInt(
                                 JavaClassAnalysis::methodCount)
                         .sum();
@@ -150,8 +153,7 @@ public class JavaRepositoryAnalysisService {
         int totalClassFields =
                 fileAnalyses.stream()
                         .flatMap(file ->
-                                file.classMetrics()
-                                        .stream())
+                                file.classMetrics().stream())
                         .mapToInt(
                                 JavaClassAnalysis::fieldCount)
                         .sum();
@@ -159,12 +161,12 @@ public class JavaRepositoryAnalysisService {
         int maxClassLoc =
                 fileAnalyses.stream()
                         .flatMap(file ->
-                                file.classMetrics()
-                                        .stream())
+                                file.classMetrics().stream())
                         .mapToInt(
                                 JavaClassAnalysis::loc)
                         .max()
                         .orElse(0);
+
 
         // --------------------------------------------------
         // COMPLEXITY METRICS
@@ -173,8 +175,7 @@ public class JavaRepositoryAnalysisService {
         int maxMethodComplexity =
                 fileAnalyses.stream()
                         .flatMap(file ->
-                                file.methods()
-                                        .stream())
+                                file.methods().stream())
                         .mapToInt(
                                 JavaMethodAnalysis::complexity)
                         .max()
@@ -183,8 +184,7 @@ public class JavaRepositoryAnalysisService {
         long totalComplexity =
                 fileAnalyses.stream()
                         .flatMap(file ->
-                                file.methods()
-                                        .stream())
+                                file.methods().stream())
                         .mapToLong(
                                 JavaMethodAnalysis::complexity)
                         .sum();
@@ -198,11 +198,11 @@ public class JavaRepositoryAnalysisService {
         int complexMethods =
                 (int) fileAnalyses.stream()
                         .flatMap(file ->
-                                file.methods()
-                                        .stream())
+                                file.methods().stream())
                         .filter(method ->
                                 method.complexity() >= 6)
                         .count();
+
 
         // --------------------------------------------------
         // ALL CLASS ANALYSES
@@ -211,66 +211,95 @@ public class JavaRepositoryAnalysisService {
         List<JavaClassAnalysis> allClasses =
                 fileAnalyses.stream()
                         .flatMap(file ->
-                                file.classMetrics()
-                                        .stream())
+                                file.classMetrics().stream())
                         .toList();
 
+
+        // --------------------------------------------------
+        // PHASE 8 — CLASS DEPENDENCY GRAPH
+        // --------------------------------------------------
+
         DependencyGraph dependencyGraph =
-                dependencyGraphService.buildClassDependencyGraph(allClasses);
+                dependencyGraphService
+                        .buildClassDependencyGraph(allClasses);
+
+
+        // --------------------------------------------------
+        // PHASE 8 — PACKAGE DEPENDENCY GRAPH
+        // --------------------------------------------------
 
         PackageDependencyGraph packageDependencyGraph =
                 packageDependencyGraphService
                         .buildPackageDependencyGraph(allClasses);
 
-        System.out.println("========== PACKAGE DEPENDENCY GRAPH ==========");
-        System.out.println(packageDependencyGraph);
-        System.out.println("========== END PACKAGE DEPENDENCY GRAPH ==========");
+
+        // --------------------------------------------------
+        // PHASE 8 — CIRCULAR DEPENDENCIES
+        // --------------------------------------------------
 
         List<CircularDependency> circularDependencies =
-                circularDependencyService.detectCycles(dependencyGraph);
+                circularDependencyService
+                        .detectCycles(dependencyGraph);
 
-        System.out.println("========== CIRCULAR DEPENDENCIES ==========");
-        System.out.println(circularDependencies);
-        System.out.println("========== END CIRCULAR DEPENDENCIES ==========");
+
+        // --------------------------------------------------
+        // PHASE 8 — ARCHITECTURE VIOLATIONS
+        // --------------------------------------------------
 
         List<ArchitectureViolation> architectureViolations =
                 architectureViolationService
-                        .detectViolations(packageDependencyGraph);
+                        .detectViolations(
+                                packageDependencyGraph
+                        );
 
-        System.out.println("========== ARCHITECTURE VIOLATIONS ==========");
-        System.out.println(architectureViolations);
-        System.out.println("========== END ARCHITECTURE VIOLATIONS ==========");
+
+        // --------------------------------------------------
+        // PHASE 9.1 — COMMIT FREQUENCY
+        // --------------------------------------------------
 
         GitCommitAnalysis gitCommitAnalysis =
-                gitHistoryService.analyzeCommitHistory(repositoryPath);
+                gitHistoryService
+                        .analyzeCommitHistory(repositoryPath);
 
-        System.out.println("========== GIT COMMIT ANALYSIS ==========");
-        System.out.println(gitCommitAnalysis);
-        System.out.println("========== END GIT COMMIT ANALYSIS ==========");
+
+        // --------------------------------------------------
+        // PHASE 9.2 — FILE CHURN
+        // --------------------------------------------------
 
         List<FileChurn> fileChurn =
-                gitHistoryService.analyzeFileChurn(repositoryPath);
+                gitHistoryService
+                        .analyzeFileChurn(repositoryPath);
 
-        System.out.println("========== FILE CHURN ==========");
-        System.out.println(fileChurn);
-        System.out.println("========== END FILE CHURN ==========");
+
+        // --------------------------------------------------
+        // PHASE 9.3 — CONTRIBUTORS
+        // --------------------------------------------------
 
         List<ContributorAnalysis> contributors =
-                gitHistoryService.analyzeContributors(repositoryPath);
+                gitHistoryService
+                        .analyzeContributors(repositoryPath);
 
-        System.out.println("========== CONTRIBUTORS ==========");
-        System.out.println(contributors);
-        System.out.println("========== END CONTRIBUTORS ==========");
+
+        // --------------------------------------------------
+        // PHASE 9.4 — HOTSPOTS
+        // --------------------------------------------------
 
         List<HotspotAnalysis> hotspots =
-                gitHistoryService.analyzeHotspots(
-                        fileChurn,
-                        fileAnalyses
-                );
+                gitHistoryService
+                        .analyzeHotspots(
+                                fileChurn,
+                                fileAnalyses
+                        );
 
-        System.out.println("========== HOTSPOTS ==========");
-        System.out.println(hotspots);
-        System.out.println("========== END HOTSPOTS ==========");
+
+        // --------------------------------------------------
+        // PHASE 9.5 — OWNERSHIP
+        // --------------------------------------------------
+
+        List<FileOwnership> ownership =
+                gitHistoryService
+                        .analyzeOwnership(repositoryPath);
+
 
         // --------------------------------------------------
         // COUPLING METRICS
@@ -303,6 +332,7 @@ public class JavaRepositoryAnalysisService {
                                         >= 5)
                         .count();
 
+
         // --------------------------------------------------
         // COHESION METRICS
         // --------------------------------------------------
@@ -330,6 +360,7 @@ public class JavaRepositoryAnalysisService {
                                         < 0.5)
                         .count();
 
+
         // --------------------------------------------------
         // REPOSITORY METRICS
         // --------------------------------------------------
@@ -349,8 +380,7 @@ public class JavaRepositoryAnalysisService {
         int totalMethodLoc =
                 fileAnalyses.stream()
                         .flatMap(file ->
-                                file.methods()
-                                        .stream())
+                                file.methods().stream())
                         .mapToInt(
                                 JavaMethodAnalysis::loc)
                         .sum();
@@ -379,6 +409,7 @@ public class JavaRepositoryAnalysisService {
                         : ((double) lowCohesionClasses
                         / totalClasses) * 100;
 
+
         // --------------------------------------------------
         // CREATE ANALYSIS WITHOUT RISK
         // --------------------------------------------------
@@ -386,21 +417,20 @@ public class JavaRepositoryAnalysisService {
         JavaRepositoryAnalysis analysis =
                 new JavaRepositoryAnalysis(
 
+                        // Repository
                         repositoryName,
 
+                        // File metrics
                         totalFiles,
                         analyzedFiles,
                         failedFiles,
                         totalLinesOfCode,
 
+                        // Class / method metrics
                         totalClasses,
                         totalMethods,
 
-                        Math.round(
-                                averageMethodComplexity
-                                        * 100.0)
-                                / 100.0,
-
+                        round(averageMethodComplexity),
                         maxMethodComplexity,
                         complexMethods,
 
@@ -408,54 +438,42 @@ public class JavaRepositoryAnalysisService {
                         totalClassFields,
                         maxClassLoc,
 
+                        // Coupling
                         totalDependencies,
-
-                        Math.round(
-                                averageClassDependencies
-                                        * 100.0)
-                                / 100.0,
-
+                        round(averageClassDependencies),
                         maxClassDependencies,
                         highlyCoupledClasses,
 
+                        // Cohesion
                         totalSharedFieldPairs,
-
-                        Math.round(
-                                averageClassCohesion
-                                        * 100.0)
-                                / 100.0,
-
+                        round(averageClassCohesion),
                         lowCohesionClasses,
 
-                        Math.round(
-                                averageClassLoc
-                                        * 100.0)
-                                / 100.0,
+                        // Repository metrics
+                        round(averageClassLoc),
+                        round(averageMethodLoc),
+                        round(complexMethodPercentage),
+                        round(highlyCoupledClassPercentage),
+                        round(lowCohesionClassPercentage),
 
-                        Math.round(
-                                averageMethodLoc
-                                        * 100.0)
-                                / 100.0,
-
-                        Math.round(
-                                complexMethodPercentage
-                                        * 100.0)
-                                / 100.0,
-
-                        Math.round(
-                                highlyCoupledClassPercentage
-                                        * 100.0)
-                                / 100.0,
-
-                        Math.round(
-                                lowCohesionClassPercentage
-                                        * 100.0)
-                                / 100.0,
-
+                        // Phase 7
                         allCodeSmells,
 
+                        // Phase 8
+                        circularDependencies,
+                        architectureViolations,
+
+                        // Phase 9
+                        gitCommitAnalysis,
+                        fileChurn,
+                        contributors,
+                        hotspots,
+                        ownership,
+
+                        // Risk
                         null
                 );
+
 
         // --------------------------------------------------
         // CALCULATE RISK
@@ -465,19 +483,23 @@ public class JavaRepositoryAnalysisService {
                 riskScoreService
                         .calculateRisk(analysis);
 
+
         // --------------------------------------------------
         // RETURN FINAL ANALYSIS
         // --------------------------------------------------
 
         return new JavaRepositoryAnalysis(
 
+                // Repository
                 analysis.repositoryName(),
 
+                // File metrics
                 analysis.totalFiles(),
                 analysis.analyzedFiles(),
                 analysis.failedFiles(),
                 analysis.totalLinesOfCode(),
 
+                // Class / method metrics
                 analysis.totalClasses(),
                 analysis.totalMethods(),
 
@@ -489,24 +511,51 @@ public class JavaRepositoryAnalysisService {
                 analysis.totalClassFields(),
                 analysis.maxClassLoc(),
 
+                // Coupling
                 analysis.totalDependencies(),
                 analysis.averageClassDependencies(),
                 analysis.maxClassDependencies(),
                 analysis.highlyCoupledClasses(),
 
+                // Cohesion
                 analysis.totalSharedFieldPairs(),
                 analysis.averageClassCohesion(),
                 analysis.lowCohesionClasses(),
 
+                // Repository metrics
                 analysis.averageClassLoc(),
                 analysis.averageMethodLoc(),
                 analysis.complexMethodPercentage(),
                 analysis.highlyCoupledClassPercentage(),
                 analysis.lowCohesionClassPercentage(),
 
+                // Phase 7
                 analysis.codeSmells(),
 
+                // Phase 8
+                analysis.circularDependencies(),
+                analysis.architectureViolations(),
+
+                // Phase 9
+                analysis.gitCommitAnalysis(),
+                analysis.fileChurn(),
+                analysis.contributors(),
+                analysis.hotspots(),
+                analysis.ownership(),
+
+                // Risk
                 riskScore
         );
+    }
+
+
+    // ============================================================
+    // Utility
+    // ============================================================
+
+    private double round(double value) {
+
+        return Math.round(value * 100.0)
+                / 100.0;
     }
 }
